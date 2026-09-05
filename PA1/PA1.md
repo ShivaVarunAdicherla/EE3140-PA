@@ -1,0 +1,25 @@
+# Part A
+
+## The wave evolution over time
+
+![Wave Evolution](./PartA/plot.gif)
+
+---
+
+# Part B 
+
+## The wave evolution over time
+![Wave Evolution](./PartB/plot.gif)
+
+# Part C
+
+## The polarisation evolution over time
+
+![Evolution](./PartC/PlotPhi0.000.gif)
+![Evolution](./PartC/PlotPhi0.785.gif)
+![Evolution](./PartC/PlotPhi1.571.gif)
+![Evolution](./PartC/PlotPhi2.356.gif)
+![Evolution](./PartC/PlotPhi3.142.gif)
+![Evolution](./PartC/PlotPhi3.927.gif)
+![Evolution](./PartC/PlotPhi4.712.gif)
+![Evolution](./PartC/PlotPhi5.498.gif)
