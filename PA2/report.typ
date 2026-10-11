@@ -43,6 +43,133 @@
 #pagebreak()
 // The 2nd Question
 = Part
+In this question we are supposed to design a L-type matching networks for the following complex loads. Given $Z_0 = 75 Omega$ and $f_0 = 1 "Ghz"$.
+== $Z_L = (150 + j 45) Omega$
+To solve:
+$
+  z_l = (150+j 45)/75 & ==> 2 + j 3/5 = 2+ j 0.6#h(1em) "(Normalisation)"
+$
+
+#figure(
+  image("PartB/150+j45_annotated.pdf", height: 51%),
+  caption: [The work on ZY smith chart to design the L network],
+)
+
+As evident in the annotated smith chart, we are going to need a *reactive element* in parallel first, and then an additional element in series. The 2 possible solutions are the following, annotated
+with green and blue sketches in the above chart. Since we are moving on Admittance Circles first, the *Parallel element comes first to the load*.
+#v(-0.5em)
+#columns(2, gutter: 0.3em)[
+  On the Green line annotated solution, we need:
+  #v(-0.5em)
+  #align(center, rect(outset: 0.3em, stroke: 1.8pt + green)[
+    $
+                     "Movement on Admittance Circle" \
+      j omega L_("Parallel") = -1/(0.37 j) times Z_0 & ==> j 202 Omega \
+              L_("Parallel") = 202/(2 pi times 10^9) & ==> 32.14 n H \
+                      "Movement on Impedance Circle" \
+         1/(j omega C_("Series")) = -1.1 j times Z_0 & ==> - j 82.5 Omega \
+       C_("Series") = 1/(2 pi times 10^9 times 82.5) & ==> 1.92 p F
+    $
+  ])
+  On the Cyan/Blue annotated solution, we need:
+  #v(-0.5em)
+  #align(center, rect(outset: 0.3em, stroke: 1.8pt + blue)[
+    $
+                          "Movement on Admittance Circle" \
+      1 / (j omega C_("Parallel")) = 1/(0.63 j) times Z_0 & ==> 119.04/j Omega \
+        C_("Parallel") = 1/(2 pi times 10^9 times 119.04) & ==> 1.33 p F \
+                           "Movement on Impedance Circle" \
+                     j omega L_"Series" = 1.1 j times Z_0 & ==> 82.5j Omega \
+                      L_"Series" = 82.5/(2 pi times 10^9) & ==> 13.13 n H
+    $
+
+  ])
+]
+== $Z_L = (30 - j 15) Omega$
+To solve:
+$
+  z_l = (30-j 15)/75 & ==> 0.4 - j 0.2 #h(1em) "(Normalisation)"
+$
+
+#figure(
+  image("PartB/30-j15_annotated.pdf", height: 57%),
+  caption: [The work on ZY smith chart to design the L network],
+)
+
+As evident in the annotated smith chart, we are going to need a *reactive element* in parallel first, and then an additional element in series. The 2 possible solutions are the following, annotated
+with green and orange sketches in the above chart. Here since we are travelling on the Impedance circles first, *Series element comes first to load*.
+#v(-0.5em)
+#columns(2, gutter: 0.3em)[
+  On the Green line annotated solution, we need:
+  #v(-0.5em)
+  #align(center, rect(outset: 0.3em, stroke: 1.8pt + green)[
+    $
+                    "Movement on Admittance Circle" \
+      j omega L_("Parallel") = -1/(1.2 j) times Z_0 & ==> j 62.5 Omega \
+            L_("Parallel") = 62.5/(2 pi times 10^9) & ==> 9.94 n H \
+                     "Movement on Impedance Circle" \
+        1/(j omega C_("Series")) = -0.3 j times Z_0 & ==> - j 22.5 Omega \
+      C_("Series") = 1/(2 pi times 10^9 times 22.5) & ==> 7.07 p F
+    $
+  ])
+  On the Orange annotated solution, we need:
+  #v(-0.5em)
+  #align(center, rect(outset: 0.3em, stroke: 1.8pt + orange)[
+    $
+                         "Movement on Admittance Circle" \
+      1 / (j omega C_("Parallel")) = 1/(1.2 j) times Z_0 & ==> 62.5/j Omega \
+         C_("Parallel") = 1/(2 pi times 10^9 times 62.5) & ==> 2.54 p F \
+                          "Movement on Impedance Circle" \
+                    j omega L_"Series" = 0.7 j times Z_0 & ==> 52.5j Omega \
+                     L_"Series" = 52.5/(2 pi times 10^9) & ==> 8.35 n H
+    $
+
+  ])
+]
+
+== $Z_L = (60+j 75) Omega$
+To solve:
+$
+  z_l = (60+j 75)/75 & ==> 0.8 + j #h(1em) "(Normalisation)"
+$
+
+#figure(
+  image("PartB/60+j75_annotated.pdf", height: 56%),
+  caption: [The work on ZY smith chart to design the L network],
+)
+
+As evident in the annotated smith chart, we are going to need a *reactive element* in parallel first, and then an additional element in series. The 2 possible solutions are the following, annotated
+with green and blue sketches in the above chart. The solution annotated with Blue travels on Impedance Circles first, so *Series element comes first to load for blue*, and similarly *Parallel element
+comes first to load for green*.
+#v(-0.5em)
+#columns(2, gutter: 0.3em)[
+  On the Blue line annotated solution, we need:
+  #v(-0.5em)
+  #align(center, rect(outset: 0.3em, stroke: 1.8pt + blue)[
+    $
+                       "Movement on Admittance Circle" \
+      1/(j omega C_("Parallel")) = 1/(0.5 j) times Z_0 & ==> 150/j Omega \
+        L_("Parallel") = 1/(2 pi times 10^9 times 150) & ==> 1.06 p F \
+                        "Movement on Impedance Circle" \
+           1/(j omega C_("Series")) = -0.6 j times Z_0 & ==> - j 45 Omega \
+           C_("Series") = 1/(2 pi times 10^9 times 45) & ==> 3.53 p F
+    $
+  ])
+  On the Green annotated solution, we need:
+  #v(-0.5em)
+  #align(center, rect(outset: 0.3em, stroke: 1.8pt + green)[
+    $
+                         "Movement on Admittance Circle" \
+      1 / (j omega C_("Parallel")) = 1/(0.1 j) times Z_0 & ==> 750/j Omega \
+          C_("Parallel") = 1/(2 pi times 10^9 times 750) & ==> 0.212 p F \
+                          "Movement on Impedance Circle" \
+              1/(j omega C_"Series") = -1.02 j times Z_0 & ==> -76.5 j Omega \
+             C_"Series" = 1/(2 pi times 10^9 times 76.5) & ==> 2.08 p F
+    $
+
+  ])
+]
+
 
 #pagebreak()
 // The 3rd Question
@@ -567,6 +694,8 @@ Which is solved by:
     radius: 0.2em,
   ),
 ]
+#v(-1em)
+Where I'm using grid array structures grid->Egrid_prev and grid->Hgrid_prev as P(Polarisation) and P_old arrays
 
 #figure(
   image(
@@ -720,7 +849,7 @@ infinite series of harmonics that can't exactly be represented in the finite dis
   the effect of this would be to use more finer meshing] but that is prohibitively expensive as we'd need much more compute time, and reality also won't let us have the ideal theoretical response we are
 hoping for.
 
-On the plus side, we see that there's a *very nice match between the expected amplitudes of Lossless Simulation and Analytical data*.
+On the plus side, we see that there's a *very nice match between the expected amplitudes of Lossless Simulation and Analytical data*. And for the lossy case, #underline[since the expected loss was very low, we weren't able to observe much exponential decay, but the amplitude compared the lossless case was lower, while keeping the shape intact (So basically dispersion less), which was expected].
 
 #v(1em)
 #par(first-line-indent: 0em)[
@@ -735,8 +864,9 @@ the requested source code.
   #text("AI Disclosure", weight: "bold", size: 16pt)
 ]
 #v(0.2em)
-There was use of Generative AI (ChatGPT) to solve the Questions - 1 (Understanding the FEM and writing code for it, in python), and Question - 2 (For the smith Chart diagrams and the plots) and
-Question - 3 (Idea to solve the Dielectric Model part), Code completely written by hand for this one.
+There was use of Generative AI (ChatGPT) to solve the Questions - 1 (Understanding the FEM and writing code for it, in python), and
+Question - 3 (Idea to solve the Dielectric Model part), Code completely written by hand for the 3rd Question. All the use was related to coding and understanding the concept and problems, the report is
+hand written.
 
 #v(1em)
 #line(length: 100%)
