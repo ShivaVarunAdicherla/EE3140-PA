@@ -13,7 +13,7 @@
   #show heading.where(level: 2): set text(size: 18pt)
   #set text(weight: "semibold", size: 14pt)
   = Waveguides and Antennas [EE3140]
-  == Programming Assignment - 1
+  == Programming Assignment - 2
   #v(0.4em)
   #grid(
     column-gutter: 2em,

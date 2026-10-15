@@ -12,10 +12,10 @@
 // Current
 
 // Only one of these must be enabled
-// #define LivePlot
+#define LivePlot
 // #define SaveGifPlot
 // Also saves the figures in .pdf format
-#define TimeStampPlot
+// #define TimeStampPlot
 // Sim Constants
 const double dt = 5E-12;
 const int points = 2001;
