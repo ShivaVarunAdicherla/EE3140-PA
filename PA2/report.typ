@@ -39,6 +39,204 @@
 #v(-1.1em)
 // The 1st Question
 = Part
+My Assumptions will be Uniform waveguide along $z$ with PEC wall, homogeneous lossless dielectric ($sigma = 0$, real $mu, epsilon$, no sources). I'm going to use the same field
+representation used in the lectures (Lecture 25). And I'm going to use *FEM* to solve this question. Since we'll be given a irregular mesh, and the equation which we are going
+to solve came out to be of the form $nabla^2 psi = k_c^2 psi$, which is easy to solve.
+
+== Transverse fields from longitudinal fields (Lecture 25)
+
+The transverse parts of the two curl laws give
+$
+  bold(H)_perp = -1 slash (j omega mu)
+  [nabla_perp times (E_z hat(bold(z))) + hat(bold(z)) times partial_z bold(E)_perp]
+$
+$
+  bold(E)_perp = 1 slash (j omega epsilon)
+  [nabla_perp times (H_z hat(bold(z))) + hat(bold(z)) times partial_z bold(H)_perp]
+$
+Eliminating $bold(H)_perp$ and using
+$
+  hat(bold(z)) times partial_z (hat(bold(z)) times partial_z bold(E)_perp)
+  = -partial_z^2 bold(E)_perp
+$
+$ hat(bold(z)) times partial_z [nabla_perp times (E_z hat(bold(z)))]
+= nabla_perp (partial_z E_z) $ yields, with $h^2 = omega^2 mu epsilon + gamma^2$,
+$
+  bold(E)_perp = -(j omega mu) slash h^2 nabla_perp times (H_z hat(bold(z)))
+  - gamma slash h^2 nabla_perp E_z
+$
+$
+  bold(H)_perp = (j omega epsilon) slash h^2 nabla_perp times (E_z hat(bold(z)))
+  - gamma slash h^2 nabla_perp H_z
+$
+$
+  nabla_perp times (psi hat(bold(z)))
+  = (partial_y psi) hat(bold(x)) - (partial_x psi) hat(bold(y))
+$
+$ E_x = -(j omega mu) slash h^2 partial_y H_z - gamma slash h^2 partial_x E_z $
+$ E_y = (j omega mu) slash h^2 partial_x H_z - gamma slash h^2 partial_y E_z $
+$ H_x = (j omega epsilon) slash h^2 partial_y E_z - gamma slash h^2 partial_x H_z $
+$ H_y = -(j omega epsilon) slash h^2 partial_x E_z - gamma slash h^2 partial_y H_z $
+For $h != 0$, $E_z$ and $H_z$ cannot both vanish: TE is
+$E_z = 0, H_z != 0$; TM is $H_z = 0, E_z != 0$. (TEM needs $h = 0$ and no
+single hollow conductor supports it.) The above equations are taken from the lecture 25, and have been discussed thoroughly in the class.
+
+== Helmholtz eigenproblem, cutoff, propagation constant
+
+Following the convention of $exp(j omega t)$ for the forward moving wave, we have the following phasor equations.
+$
+  nabla times E & = -j omega mu H \
+  nabla times H & = j omega epsilon E
+$
+
+Since the space inside the PEC boundaries is "free space" without any charge, we can write:
+$
+  nabla times nabla times E = -j omega mu (nabla times H) ==> nabla (0) - nabla^2 E = -j omega mu (j omega epsilon E) ==> nabla^2 E + omega^2 mu epsilon E = 0
+$
+
+Substituting only the longitudinal fields, we get: (A more rigorous derivation is in my rough note)
+
+$ nabla_perp^2 E_z + h^2 E_z = 0, quad nabla_perp^2 H_z + h^2 H_z = 0 $
+$-nabla_perp^2 psi = k_c^2 psi$ in $Omega$ with $psi = E_z$ (TM) or
+$psi = H_z$ (TE) and $k_c^2 = h^2$. In all the general FEM Literature I've seen that the domain/mesh in which are solving the FEM is represented by $Omega$, and $k_c^2$ the eigen value,
+and I'm doing the same here.
+
+== PEC boundary conditions: derivation and enforcement
+
+On a perfect conductor $n times E = 0$ and
+$n dot B = 0$, with $n$ the outward cross-section normal the wall runs parallel to $z$, so $hat(z)$ is tangential to it. The $z$-component of $E$ is therefore tangential and must vanish:
+$ E_z = 0 "on PEC (Dirichlet)". $
+This is the TM condition. In the code it is enforced strongly, by all nodes on lines tagged `"pec"` are deleted from the system and $K_(F F) v = k_c^2 M_(F F) v$ is solved on the free nodes $F$, with
+$psi = 0$ reinserted on the PEC nodes afterwards. Essentially removing the nodes from the solution/computation we decrease the degrees of freedom which is exactly this pinning of the field to 0 is doing.
+
+For TE, $E_z = 0$ identically, so $n times E_perp = 0$ must constrain $H_z$ instead. From the TE reduction of the transverse formula,
+$ E_perp = -(j omega mu) slash k_c^2 [(partial_y H_z) hat(x)) - (partial_x H_z) hat(y))] $
+$ n_x partial_x H_z + n_y partial_y H_z = partial_n H_z = 0 #h(2em) "with" n = n_x hat(x) + n_y hat(y) $
+$ partial_n H_z = 0 "on PEC (homogeneous Neumann)". $
+
+Since the next step needs some FEM results, we'll go through them now. We have to solve the equation below:
+$ nabla_perp^2 psi = - k_c^2 psi #h(1em) ("And as said before," psi "can be either" E "or" H "depending on mode") $
+Now we multiply a basis function what has some properties which we can exploit down the line, like how we have lorentz's gauge condition helping us in simplifying EM equations in Antennas
+(Magnetic Vector Potential A)
+$
+  integral_Omega w nabla_perp^2 psi dif Omega = -k_c^2 integral_Omega w psi dif Omega \
+  "Using the integration by parts identity"\
+  integral_Omega nabla w dot nabla psi dif Omega - integral_(partial Omega) w partial_n psi dif S = k_c^2 integral_Omega w psi dif Omega
+$
+
+Now if we come back and substitute $H$ instead of $psi$, and observe the equation, we are really only concerned for the middle term. But we chose the test/basis functions such that the
+boundary integral vanishes i.e. $partial_n psi = 0$, so the code assembles the full $K, M$ ($K v = k_c^2 M v$) with no row elimination and simply discards the
+trivial constant mode ($k_c approx 0$, non-physical for a hollow guide).
+
+== Results of FEM simulation of a Rectangular waveguide (a = 2m, b = 1m)
+My simulator just prints the data in the order of their cutoff frequencies since the *_eigh_* solver inside numpy directly returns an array in which eigen values are sorted, along with the corresponding
+eigen vectors.
+
+=== Results of TE Mode 3
+
+#align(center, rect(
+  ```
+  ❯ python FEM.py rect.msh TE3
+
+  Calculated kc is : 3.142447383217628 rad/m
+  Calculated fc is : 149937011.10072228 Hz
+  Calculated beta is : 20.721526489321995
+  ```,
+  outset: 0.2em,
+  radius: 0.5em,
+))
+$
+  h = k_c = sqrt(((m pi)/a)^2 + ((n pi)/b)^2) #h(2em) ("From the Lecture Notes")
+$
+
+Now, for TE3 in my simulator, we go through the modes one by one, $ "TE"_((1,0)) = pi/2 #h(1em) "TE"_((0,1)) = pi #h(1em) "TE"_((2,0)) = pi $
+
+We now also notice that the cutoffs for TE2 and TE3 are going to be the same, and due to numerical precision errors accumilating differently for these different modes, we'll see either of them get
+classified with higher or lower positions, and hence this ordering must not be expected always ($"TE"_(0,1) < "TE"_(2,0)$).
+
+Coming back, we notice that our calculated $h = 3.14244738 "rad/"m$ which is close to what we are expecting. The error is:
+$
+  (delta h)/h = (3.14244738 - pi)/pi = 2.74 times 10^(-4)
+$
+#v(-1.5em)
+#align(center, block(
+  figure(
+    image("PartA/results_TE3_rect/heatmap.pdf"),
+    caption: [The Longitudinal Field (H) in this case, because TE mode],
+  ),
+  height: 1fr,
+))
+#align(center, block(
+  figure(
+    image("PartA/results_TE3_rect/transverse_H.pdf"),
+    caption: [The Transverse H field in this Mode],
+  ),
+  height: 1fr,
+))
+#align(center, block(
+  figure(
+    image("PartA/results_TE3_rect/transverse_E.pdf"),
+    caption: [The Transverse E field in this Mode],
+  ),
+  height: 1fr,
+))
+
+#v(1em)
+#pagebreak()
+=== Results of TM Mode 5
+#align(center, rect(
+  ```
+  ❯ python FEM.py rect.msh TM5
+
+  Calculated kc is : 7.03430513384043 rad/m
+  Calculated fc is : 335630977.4894511 Hz
+  Calculated beta is : 19.742724910406633
+  ```,
+  outset: 0.2em,
+  radius: 0.5em,
+))
+$
+  h = k_c = sqrt(((m pi)/a)^2 + ((n pi)/b)^2) #h(2em) ("From the Lecture Notes")
+$
+
+Now, for TM5 in my simulator, we go through the modes one by one,
+$
+  "TM"_((1,1)) = (pi sqrt(5))/2 #h(1em) "TM"_((2,1)) = pi sqrt(2) #h(1em) "TM"_((3,1)) = (pi sqrt(13))/2 #h(1em) "TM"_((1,2)) = (pi sqrt(17))/2 #h(1em) "TM"_((2,2)) = pi sqrt(5)
+$
+
+There's the next mode $"TM"_((4,1))$ that also has the same cutoff or eigen value, and again as mentioned the order is not concrete, and I've observed the output of the simulator and placed
+$"TM"_((2,2))$ in the $5^("th")$ place.
+
+Coming back, we notice that our calculated $h = 7.03430513 "rad/"m$ which is close to what we are expecting. The error is:
+$
+  (delta h)/h = (7.03430513 - pi sqrt(5))/(pi sqrt(5)) = 1.35 times 10^(-3)
+$
+#v(-1.5em)
+#align(center, block(
+  figure(
+    image("PartA/results_TM5_rect/heatmap.pdf"),
+    caption: [The Longitudinal Field (H) in this case, because TE mode],
+  ),
+  height: 30%,
+))
+#align(center, block(
+  grid(
+    columns: 2,
+    figure(
+      image("PartA/results_TM5_rect/transverse_H.pdf"),
+      caption: [The Transverse H field in this Mode],
+    ),
+    figure(
+      image("PartA/results_TM5_rect/transverse_E.pdf"),
+      caption: [The Transverse E field in this Mode],
+    ),
+  ),
+  height: 20%,
+))
+
+As we can see the Transverse $E$ and $H$ fields that I've plotted are always perpendicular to each other, like we expect in free space propagation.
+The  results above were obtained for a pretty dense mesh, and I've observed that for lower density meshing, we had "clumping" of fields at certain nodes, which isn't expected since the Electric and
+Magnetic field inside the waveguide were supposed to be smooth and continuous.
 
 #pagebreak()
 // The 2nd Question
@@ -85,6 +283,21 @@ with green and blue sketches in the above chart. Since we are moving on Admittan
 
   ])
 ]
+#pagebreak()
+#block(height: 1fr, width: 100%, figure(
+  image("PartB/A-Blue.png"),
+  caption: [The plot of the Blue annotated Solution, Purple is the Gamma and Green is Transfer function (V)],
+))
+#v(1em)
+As we can see, we have a good match at $f=1$Ghz as expected, and since the Transfer function looks like it's a low pass, we can define the $3d b$ bandwidth to be $approx 1.9$Ghz
+#block(height: 1fr, width: 100%, figure(
+  image("PartB/A-Green.png"),
+  caption: [The plot of the Green annotated Solution, Purple is the Gamma and Green is Transfer function (V)],
+))
+#v(1em)
+As we can see, we have a good match at $f=1$Ghz as expected, and since the Transfer function looks like it's a high pass, we can't define the $3d b$ bandwidth, but $3d b$ point is $approx 0.4$Ghz
+#v(3em)
+#pagebreak()
 == $Z_L = (30 - j 15) Omega$
 To solve:
 $
@@ -126,6 +339,21 @@ with green and orange sketches in the above chart. Here since we are travelling 
 
   ])
 ]
+#pagebreak()
+#block(height: 1fr, width: 100%, figure(
+  image("PartB/B-Orange.png"),
+  caption: [The plot of the Orange annotated Solution, Purple is the Gamma and Green is Transfer function (V)],
+))
+#v(1em)
+As we can see, we have a good match at $f=1$Ghz as expected, and since the Transfer function looks like it's a low pass, we can define the $3d b$ bandwidth to be $approx 1$Ghz
+#block(height: 1fr, width: 100%, figure(
+  image("PartB/B-Green.png"),
+  caption: [The plot of the Green annotated Solution, Purple is the Gamma and Green is Transfer function (V)],
+))
+#v(1em)
+As we can see, we have a good match at $f=1$Ghz as expected, and since the Transfer function looks like it's a high pass, we can't define the $3d b$ bandwidth, but $3d b$ point is $approx 1$Ghz
+#v(3em)
+#pagebreak()
 
 == $Z_L = (60+j 75) Omega$
 To solve:
@@ -149,7 +377,7 @@ comes first to load for green*.
     $
                        "Movement on Admittance Circle" \
       1/(j omega C_("Parallel")) = 1/(0.5 j) times Z_0 & ==> 150/j Omega \
-        L_("Parallel") = 1/(2 pi times 10^9 times 150) & ==> 1.06 p F \
+        C_("Parallel") = 1/(2 pi times 10^9 times 150) & ==> 1.06 p F \
                         "Movement on Impedance Circle" \
            1/(j omega C_("Series")) = -0.6 j times Z_0 & ==> - j 45 Omega \
            C_("Series") = 1/(2 pi times 10^9 times 45) & ==> 3.53 p F
@@ -169,9 +397,24 @@ comes first to load for green*.
 
   ])
 ]
-
-
 #pagebreak()
+#block(height: 1fr, width: 100%, figure(
+  image("PartB/C-Blue.png"),
+  caption: [The plot of the Blue annotated Solution, Purple is the Gamma and Green is Transfer function (V)],
+))
+#v(1em)
+As we can see, we have a good match at $f=1$Ghz as expected, and since the Transfer function looks like it's a high pass, we can't define the $3d b$ bandwidth, but $3d b$ point is $approx 0.1$Ghz
+#block(height: 1fr, width: 100%, figure(
+  image("PartB/C-Green.png"),
+  caption: [The plot of the Green annotated Solution, Purple is the Gamma and Green is Transfer function (V)],
+))
+#v(1em)
+As we can see, we have a good match at $f=1$Ghz as expected, and since the Transfer function looks like it's a high pass, we can't define the $3d b$ bandwidth, but $3d b$ point is $approx 0.3$Ghz
+And the desmos graphs I've used to get these plots is available #link("https://www.desmos.com/calculator/n3dzb8yebg", "here").
+#v(3em)
+#pagebreak()
+
+
 // The 3rd Question
 = Part
 ==
